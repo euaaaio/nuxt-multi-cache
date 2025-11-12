@@ -1,6 +1,6 @@
 {
   "name": "@euaaaio/nuxt-multi-cache",
-  "version": "4.0.3-patch.1",
+  "version": "4.0.3-patch.2",
   "description": "SSR route, component and data cache for Nuxt",
   "type": "module",
   "exports": {
