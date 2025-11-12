@@ -9,8 +9,9 @@ import { TEMPLATES } from './build/templates'
 import { pathToFileURL } from 'node:url'
 import { parseURL } from 'ufo'
 
-export type { CacheTagRegistry } from './runtime/types/CacheTagRegistry'
 export type { CacheTagInvalidator } from './runtime/types/CacheTagInvalidator'
+export type { MultiCacheInstances } from './runtime/types'
+export type { CacheTagRegistry } from './runtime/types/CacheTagRegistry'
 export type { CacheType } from './runtime/types/index'
 export type { ModuleOptions }
 
