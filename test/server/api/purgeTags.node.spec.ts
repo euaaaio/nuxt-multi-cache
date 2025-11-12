@@ -4,7 +4,7 @@ import { sleep } from '../../__helpers__'
 import { encodeComponentCacheItem } from '../../../src/runtime/helpers/cacheItem'
 import purgeTags from './../../../src/runtime/server/api/purgeTags'
 import type { MultiCacheInstances } from '~/src/runtime/types'
-import { CacheTagInvalidator } from '~/src/runtime/helpers/CacheTagInvalidator'
+import { InMemoryCacheTagInvalidator } from '~/src/runtime/helpers/InMemoryCacheTagInvalidator'
 
 const mocks = vi.hoisted(() => {
   return {
@@ -73,7 +73,10 @@ describe('purgeTags API handler', () => {
       component: { storage: storageComponent, bubbleError: false },
     }
 
-    const cacheTagInvalidator = new CacheTagInvalidator(cacheContext, null)
+    const cacheTagInvalidator = new InMemoryCacheTagInvalidator(
+      cacheContext,
+      null,
+    )
 
     mocks.useNitroApp.mockReturnValue({
       multiCache: {
