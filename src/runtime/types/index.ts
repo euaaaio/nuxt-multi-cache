@@ -64,6 +64,7 @@ export interface DataCacheItem extends CacheItem {}
 export interface ComponentCacheItem extends CacheItem {
   payload?: Record<string, any>
   ssrModules?: string[]
+  staleWhileRevalidate?: boolean
 }
 
 export type ComponentCacheEntry = ComponentCacheItem | string
@@ -190,6 +191,39 @@ export type MultiCacheServerOptions = {
    * ```
    */
   cacheTagInvalidator?: CacheTagInvalidatorFactory | 'in-memory'
+
+  /**
+   * Configure shared state storage for stale-while-revalidate coordination.
+   *
+   * When multiple server instances are running (e.g., in a cluster), this storage
+   * is used to coordinate which instance is currently revalidating a stale cache entry.
+   * This prevents multiple instances from simultaneously revalidating the same entry.
+   *
+   * If not provided, an in-memory state is used, which only works within a single
+   * server instance.
+   *
+   * @example
+   * ```typescript
+   * multiCacheState: {
+   *   storage: createStorage({
+   *     driver: mongoDriver({ ... })
+   *   }),
+   *   revalidationTTL: 120 // seconds
+   * }
+   * ```
+   */
+  multiCacheState?: {
+    /**
+     * The storage driver for shared state (e.g., MongoDB, Redis).
+     */
+    storage?: CreateStorageOptions
+    /**
+     * TTL for revalidation flags in seconds.
+     * Auto-cleanup in case of server crashes or errors.
+     * @default 120
+     */
+    revalidationTTL?: number
+  }
 }
 
 // This typo went unnoticed for quite some time, so we'll also export it with

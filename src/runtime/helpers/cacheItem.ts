@@ -80,6 +80,7 @@ export function encodeComponentCacheItem(
   cacheTags?: string[],
   ssrModules?: string[],
   staleIfErrorExpires?: number,
+  staleWhileRevalidate?: boolean,
 ): string {
   const cacheItem: Omit<ComponentCacheItem, 'data'> = {
     payload,
@@ -87,6 +88,7 @@ export function encodeComponentCacheItem(
     ssrModules,
     expires: expires ?? CACHE_PERMANENT,
     staleIfErrorExpires: staleIfErrorExpires ?? CACHE_NEVER,
+    staleWhileRevalidate,
   }
   return encodeCacheItem(data, cacheItem)
 }

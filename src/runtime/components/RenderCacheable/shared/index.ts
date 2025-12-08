@@ -49,6 +49,12 @@ export type Props = {
    * If cacheability of the component should be bubbled to the route cache and/or CDN headers.
    */
   bubbleCacheability?: BubbleCacheability
+
+  /**
+   * Enable stale-while-revalidate for this component.
+   * When enabled, stale cached content will be served while the component is being revalidated in the background.
+   */
+  swr?: boolean
 }
 
 export const props = {
@@ -82,5 +88,9 @@ export const props = {
 
   bubbleCacheability: {
     type: [Boolean, String],
+  },
+
+  swr: {
+    type: Boolean,
   },
 }

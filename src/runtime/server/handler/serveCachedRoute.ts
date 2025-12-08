@@ -19,12 +19,12 @@ import { debug } from '#nuxt-multi-cache/config'
 import { serverOptions } from '#nuxt-multi-cache/server-options'
 import { isExpired } from '../../helpers/maxAge'
 
-function canBeServedFromCache(
+async function canBeServedFromCache(
   event: H3Event,
   key: string,
   decoded: RouteCacheItem,
   state: MultiCacheState,
-): boolean {
+): Promise<boolean> {
   // Item is not expired, so we can serve it.
   if (!isExpired(decoded.expires, getRequestTimestamp(event))) {
     return true
@@ -32,7 +32,7 @@ function canBeServedFromCache(
 
   // The route may be served stale while revalidating if it currently is being
   // revalidated.
-  if (decoded.staleWhileRevalidate && state.isBeingRevalidated(key)) {
+  if (decoded.staleWhileRevalidate && (await state.isBeingRevalidated(key))) {
     return true
   }
 
@@ -83,10 +83,10 @@ export async function serveCachedHandler(event: H3Event) {
     event.context.multiCache.routeCachedDecoded = decoded
 
     // Check if item can be served from cache.
-    if (!canBeServedFromCache(event, fullKey, decoded, state)) {
+    if (!(await canBeServedFromCache(event, fullKey, decoded, state))) {
       // Mark the key as being revalidated.
       if (decoded.staleWhileRevalidate) {
-        state.addKeyBeingRevalidated(fullKey)
+        await state.addKeyBeingRevalidated(fullKey)
         event.context.multiCache ||= {}
         event.context.multiCache.routeRevalidationkey = fullKey
       }

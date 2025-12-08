@@ -8,6 +8,11 @@ export class ComponentCacheHelper extends CacheHelper {
   payloadKeys: string[] = []
 
   /**
+   * Whether a stale response can be served during revalidation.
+   */
+  staleWhileRevalidate: boolean | null = null
+
+  /**
    * Add payload keys for which the value should be extracted and stored
    * in cache.
    */
@@ -18,6 +23,14 @@ export class ComponentCacheHelper extends CacheHelper {
       this.payloadKeys.push(keys)
     }
 
+    return this
+  }
+
+  /**
+   * Sets whether a stale response can be returned while a new one is being generated.
+   */
+  public allowStaleWhileRevalidate(): this {
+    this.staleWhileRevalidate = true
     return this
   }
 }

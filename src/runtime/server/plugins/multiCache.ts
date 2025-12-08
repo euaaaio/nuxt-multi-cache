@@ -68,11 +68,18 @@ function createMultiCacheApp(): MultiCacheApp {
       ? serverOptions.cacheTagInvalidator(cacheContext, cacheTagRegistry)
       : new InMemoryCacheTagInvalidator(cacheContext, cacheTagRegistry)
 
+  // Initialize MultiCacheState with optional shared storage
+  const stateStorage = serverOptions.multiCacheState?.storage
+    ? createStorage(serverOptions.multiCacheState.storage)
+    : undefined
+
+  const revalidationTTL = serverOptions.multiCacheState?.revalidationTTL ?? 120
+
   return {
     cache: cacheContext,
     serverOptions,
     config: runtimeConfig.multiCache,
-    state: new MultiCacheState(),
+    state: new MultiCacheState(stateStorage, revalidationTTL),
     cacheTagRegistry,
     cacheTagInvalidator,
   }

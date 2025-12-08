@@ -20,6 +20,7 @@ import {
 import { isExpired } from '../../../helpers/maxAge'
 import type { ComponentCacheItem } from '../../../types'
 import { bubbleCacheability } from './../../../helpers/bubbleCacheability'
+import { useMultiCacheApp } from '../../../server/utils/useMultiCacheApp'
 
 /**
  * Wrapper for cacheable components.
@@ -157,6 +158,7 @@ export default defineComponent<Props>({
     }
 
     const now = getRequestTimestamp(event)
+    const { state } = useMultiCacheApp()
 
     function returnCached(cacheItem: ComponentCacheItem) {
       // If payload is available for component add it to the global payload
@@ -187,8 +189,46 @@ export default defineComponent<Props>({
     }
 
     if (cached) {
-      // Check if the cache entry is expired.
-      if (isExpired(cached.expires, now)) {
+      const expired = isExpired(cached.expires, now)
+
+      // Fresh cache - return immediately
+      if (!expired) {
+        return returnCached(cached)
+      }
+
+      // Expired cache - check if SWR is enabled
+      if (cached.staleWhileRevalidate && props.swr) {
+        // Check if another instance is already revalidating this key
+        if (await state.isBeingRevalidated(fullCacheKey)) {
+          if (debug) {
+            logger.info(
+              'Returning stale component while another instance is revalidating.',
+              {
+                fullCacheKey,
+                expires: cached.expires,
+              },
+            )
+          }
+          return returnCached(cached)
+        }
+
+        // Mark this key as being revalidated
+        await state.addKeyBeingRevalidated(fullCacheKey)
+
+        if (debug) {
+          logger.info(
+            'Component cache expired, starting revalidation with SWR.',
+            {
+              fullCacheKey,
+              expires: cached.expires,
+            },
+          )
+        }
+
+        // Continue to render and update cache below
+        // The revalidation flag will be cleared after successful cache update
+      } else {
+        // SWR disabled - just log and continue to revalidate
         if (debug) {
           logger.error(
             "Don't return component from cache because it's expired.",
@@ -198,8 +238,6 @@ export default defineComponent<Props>({
             },
           )
         }
-      } else {
-        return returnCached(cached)
       }
     }
 
@@ -224,6 +262,10 @@ export default defineComponent<Props>({
 
     if (props.cacheTags) {
       helper.addTags(props.cacheTags)
+    }
+
+    if (props.swr) {
+      helper.allowStaleWhileRevalidate()
     }
 
     // Store the original set.
@@ -302,6 +344,7 @@ export default defineComponent<Props>({
 
       const expires = helper.getExpires('maxAge')
       const staleIfErrorExpires = helper.getExpires('staleIfError')
+      const staleWhileRevalidate = helper.staleWhileRevalidate ?? false
 
       // Store in cache.
       await componentCache.storage.setItemRaw(
@@ -313,6 +356,7 @@ export default defineComponent<Props>({
           cacheTags,
           ssrModules,
           staleIfErrorExpires,
+          staleWhileRevalidate,
         ),
         { ttl: maxAge },
       )
@@ -322,12 +366,19 @@ export default defineComponent<Props>({
           await registry.addCacheTags(fullCacheKey, 'component', cacheTags)
         }
       }
+
+      // Clear revalidation flag after successful cache update
+      if (staleWhileRevalidate) {
+        await state.removeKeyBeingRevalidated(fullCacheKey)
+      }
+
       if (debug) {
         logger.log('Stored component in cache.', {
           file: currentInstance.type.__file,
           fullCacheKey,
           expires,
           cacheTags,
+          staleWhileRevalidate,
         })
       }
     } catch (e) {

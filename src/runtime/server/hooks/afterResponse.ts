@@ -149,7 +149,7 @@ export async function onAfterResponse(
   }
 
   if (event.context.multiCache?.routeRevalidationkey) {
-    state.removeKeyBeingRevalidated(
+    await state.removeKeyBeingRevalidated(
       event.context.multiCache.routeRevalidationkey,
     )
   }
