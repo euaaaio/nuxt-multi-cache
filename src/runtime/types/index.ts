@@ -205,9 +205,9 @@ export type MultiCacheServerOptions = {
    * @example
    * ```typescript
    * multiCacheState: {
-   *   storage: createStorage({
+   *   storage: {
    *     driver: mongoDriver({ ... })
-   *   }),
+   *   },
    *   revalidationTTL: 120 // seconds
    * }
    * ```
