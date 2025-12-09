@@ -335,6 +335,8 @@ export default defineComponent<Props>({
     // Storing the markup in cache is wrapped in a try/catch. That way if
     // the cache backend is down for some reason we can still return the
     // markup already generated.
+    const staleWhileRevalidate = helper.staleWhileRevalidate ?? false
+
     try {
       // The cache tags for this component.
       const cacheTags = helper.tags
@@ -351,7 +353,6 @@ export default defineComponent<Props>({
 
       const expires = helper.getExpires('maxAge')
       const staleIfErrorExpires = helper.getExpires('staleIfError')
-      const staleWhileRevalidate = helper.staleWhileRevalidate ?? false
 
       // Store in cache.
       await componentCache.storage.setItemRaw(
@@ -374,11 +375,6 @@ export default defineComponent<Props>({
         }
       }
 
-      // Clear revalidation flag after successful cache update
-      if (staleWhileRevalidate && state) {
-        await state.removeKeyBeingRevalidated(fullCacheKey)
-      }
-
       if (debug) {
         logger.log('Stored component in cache.', {
           file: currentInstance.type.__file,
@@ -399,6 +395,11 @@ export default defineComponent<Props>({
       )
       if (bubbleError) {
         throw e
+      }
+    } finally {
+      // Clear revalidation flag in any case (success or error)
+      if (staleWhileRevalidate && state) {
+        await state.removeKeyBeingRevalidated(fullCacheKey)
       }
     }
 
