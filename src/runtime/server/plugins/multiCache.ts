@@ -70,10 +70,14 @@ function createMultiCacheApp(): MultiCacheApp {
       : new InMemoryCacheTagInvalidator(cacheContext, cacheTagRegistry)
 
   // Initialize MultiCacheState
-  const state: MultiCacheState =
-    typeof serverOptions.state === 'function'
-      ? serverOptions.state
-      : new InMemoryMultiCacheState(serverOptions.state?.revalidationTTL ?? 120)
+  let state: MultiCacheState
+  if (!serverOptions.state) {
+    state = new InMemoryMultiCacheState()
+  } else if (serverOptions.state?.revalidationTTL) {
+    state = new InMemoryMultiCacheState(serverOptions.state.revalidationTTL)
+  } else {
+    state = serverOptions.state
+  }
 
   return {
     cache: cacheContext,
