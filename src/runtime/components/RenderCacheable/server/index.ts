@@ -329,6 +329,10 @@ export default defineComponent<Props>({
 
     // Not cacheable, return.
     if (!helper.isCacheable()) {
+      // Clear revalidation flag if we set it earlier
+      if (cached?.staleWhileRevalidate && props.swr && state) {
+        await state.removeKeyBeingRevalidated(fullCacheKey)
+      }
       return renderMarkup(renderResult)
     }
 
