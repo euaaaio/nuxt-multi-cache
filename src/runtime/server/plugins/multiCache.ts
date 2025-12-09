@@ -73,10 +73,12 @@ function createMultiCacheApp(): MultiCacheApp {
   let state: MultiCacheState
   if (!serverOptions.state) {
     state = new InMemoryMultiCacheState()
-  } else if (serverOptions.state?.revalidationTTL) {
+  } else if ('addKeyBeingRevalidated' in serverOptions.state) {
+    state = serverOptions.state
+  } else if (serverOptions.state.revalidationTTL) {
     state = new InMemoryMultiCacheState(serverOptions.state.revalidationTTL)
   } else {
-    state = serverOptions.state
+    state = new InMemoryMultiCacheState()
   }
 
   return {
