@@ -2,6 +2,7 @@ import { type H3Event, getRequestURL } from 'h3'
 import type { MultiCacheInstances } from './../types'
 import type { CacheTagRegistry } from './../types/CacheTagRegistry'
 import type { NuxtMultiCacheRouteCacheHelper } from './RouteCacheHelper'
+import type { MultiCacheState } from './MultiCacheState'
 import { isServer, isTestMode } from '#nuxt-multi-cache/config'
 import { getRequestHeader } from 'h3'
 import {
@@ -51,6 +52,12 @@ export function getCacheTagRegistry(
   event: H3Event,
 ): CacheTagRegistry | undefined {
   return event.context.multiCacheApp?.cacheTagRegistry ?? undefined
+}
+
+export function getMultiCacheState(
+  event: H3Event,
+): MultiCacheState | undefined {
+  return event.context.multiCacheApp?.state ?? undefined
 }
 
 export function getMultiCacheRouteHelper(

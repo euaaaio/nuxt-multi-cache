@@ -9,6 +9,7 @@ import {
   enabledForRequest,
   getRequestTimestamp,
   getCacheTagRegistry,
+  getMultiCacheState,
 } from './../../../helpers/server'
 import { getCacheKey, getCachedComponent, renderSlot } from './helper'
 import { type Props, props } from '../shared'
@@ -20,7 +21,6 @@ import {
 import { isExpired } from '../../../helpers/maxAge'
 import type { ComponentCacheItem } from '../../../types'
 import { bubbleCacheability } from './../../../helpers/bubbleCacheability'
-import { useMultiCacheApp } from '../../../server/utils/useMultiCacheApp'
 
 /**
  * Wrapper for cacheable components.
@@ -158,7 +158,14 @@ export default defineComponent<Props>({
     }
 
     const now = getRequestTimestamp(event)
-    const { state } = useMultiCacheApp()
+    const state = getMultiCacheState(event)
+
+    if (!state) {
+      if (debug) {
+        logger.warn('MultiCacheState not available.')
+      }
+      // Continue without SWR support
+    }
 
     function returnCached(cacheItem: ComponentCacheItem) {
       // If payload is available for component add it to the global payload
@@ -197,7 +204,7 @@ export default defineComponent<Props>({
       }
 
       // Expired cache - check if SWR is enabled
-      if (cached.staleWhileRevalidate && props.swr) {
+      if (cached.staleWhileRevalidate && props.swr && state) {
         // Check if another instance is already revalidating this key
         if (await state.isBeingRevalidated(fullCacheKey)) {
           if (debug) {
@@ -368,7 +375,7 @@ export default defineComponent<Props>({
       }
 
       // Clear revalidation flag after successful cache update
-      if (staleWhileRevalidate) {
+      if (staleWhileRevalidate && state) {
         await state.removeKeyBeingRevalidated(fullCacheKey)
       }
 
