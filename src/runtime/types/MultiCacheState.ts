@@ -104,18 +104,4 @@ export interface MultiCacheState {
    * ```
    */
   removeKeyBeingRevalidated(key: string): Promise<void>
-
-  /**
-   * Clean up any resources held by the state implementation.
-   *
-   * This method is called when shutting down the application. Implementations
-   * should stop timers, close connections, etc.
-   *
-   * @example
-   * ```typescript
-   * // On application shutdown
-   * state.destroy()
-   * ```
-   */
-  destroy(): void
 }
