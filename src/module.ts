@@ -15,11 +15,6 @@ export type { CacheTagRegistry } from './runtime/types/CacheTagRegistry'
 export type { CacheType } from './runtime/types/index'
 export type { ModuleOptions }
 
-export {
-  encodeComponentCacheItem,
-  decodeComponentCacheItem,
-} from './runtime/helpers/cacheItem'
-
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name,
