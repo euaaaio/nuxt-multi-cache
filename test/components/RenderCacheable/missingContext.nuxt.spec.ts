@@ -98,6 +98,7 @@ describe('RenderCacheable with missing context', () => {
         maxAge: undefined,
         noCache: false,
         staleIfError: undefined,
+        swr: false,
         tag: undefined,
       },
     )
@@ -133,6 +134,7 @@ describe('RenderCacheable with missing context', () => {
       maxAge: undefined,
       noCache: false,
       staleIfError: undefined,
+      swr: false,
       tag: undefined,
     })
   })
