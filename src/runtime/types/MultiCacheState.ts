@@ -28,10 +28,6 @@
  *   async removeKeyBeingRevalidated(key: string): Promise<void> {
  *     // Your MongoDB implementation
  *   }
- *
- *   destroy() {
- *     // Cleanup resources
- *   }
  * }
  * ```
  *
