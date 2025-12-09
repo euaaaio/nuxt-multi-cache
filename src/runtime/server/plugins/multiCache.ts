@@ -9,7 +9,8 @@ import type {
   MultiCacheInstance,
 } from '../../types'
 import { onError } from '../hooks/error'
-import { MultiCacheState } from '../../helpers/MultiCacheState'
+import { InMemoryMultiCacheState } from '../../helpers/InMemoryMultiCacheState'
+import type { MultiCacheState } from '../../types/MultiCacheState'
 import { serveCachedHandler } from '../handler/serveCachedRoute'
 import { serverOptions } from '#nuxt-multi-cache/server-options'
 import {
@@ -68,18 +69,17 @@ function createMultiCacheApp(): MultiCacheApp {
       ? serverOptions.cacheTagInvalidator(cacheContext, cacheTagRegistry)
       : new InMemoryCacheTagInvalidator(cacheContext, cacheTagRegistry)
 
-  // Initialize MultiCacheState with optional shared storage
-  const stateStorage = serverOptions.multiCacheState?.storage
-    ? createStorage(serverOptions.multiCacheState.storage)
-    : undefined
-
-  const revalidationTTL = serverOptions.multiCacheState?.revalidationTTL ?? 120
+  // Initialize MultiCacheState
+  const state: MultiCacheState =
+    typeof serverOptions.state === 'function'
+      ? serverOptions.state
+      : new InMemoryMultiCacheState(serverOptions.state?.revalidationTTL ?? 120)
 
   return {
     cache: cacheContext,
     serverOptions,
     config: runtimeConfig.multiCache,
-    state: new MultiCacheState(stateStorage, revalidationTTL),
+    state,
     cacheTagRegistry,
     cacheTagInvalidator,
   }

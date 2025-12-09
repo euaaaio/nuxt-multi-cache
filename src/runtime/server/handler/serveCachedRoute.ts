@@ -11,8 +11,7 @@ import {
   decodeRouteCacheItem,
   handleRawCacheData,
 } from '../../helpers/cacheItem'
-import type { RouteCacheItem } from '../../types'
-import type { MultiCacheState } from '../../helpers/MultiCacheState'
+import type { RouteCacheItem, MultiCacheState } from '../../types'
 import { logger } from '../../helpers/multi-cache-logger'
 import { setCachedResponse } from '../../helpers/routeCache'
 import { debug } from '#nuxt-multi-cache/config'

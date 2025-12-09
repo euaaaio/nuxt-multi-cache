@@ -1,8 +1,7 @@
 import { type H3Event, getRequestURL } from 'h3'
-import type { MultiCacheInstances } from './../types'
+import type { MultiCacheInstances, MultiCacheState } from './../types'
 import type { CacheTagRegistry } from './../types/CacheTagRegistry'
 import type { NuxtMultiCacheRouteCacheHelper } from './RouteCacheHelper'
-import type { MultiCacheState } from './MultiCacheState'
 import { isServer, isTestMode } from '#nuxt-multi-cache/config'
 import { getRequestHeader } from 'h3'
 import {
